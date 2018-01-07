@@ -1,26 +1,31 @@
-import Foundation
 import Glibc
+import Foundation
 
-typealias IntPointer = UnsafePointer<Int>
-typealias CharPointer = UnsafePointer<CChar>
-let BUFFER_SIZE = 2048
-
-print("args=\(CommandLine.arguments.count)")
+//Standard error setting
+//Requied Foundation Lib
+var standardError = FileHandle.standardError
+extension FileHandle : TextOutputStream {
+  public func write(_ string: String) {
+    guard let data = string.data(using: .utf8) else { return }
+    self.write(data)
+  }
+}
 
 func die (s: String) {
+	print("process downed by \(s)")
 	perror(s)
 	exit(1)
 }
 
-func do_cat(filePath: CharPointer) {
+func do_cat(filePath: String) {
 	var fd: CInt
-	let buf = [CUnsignedChar]()
-	var n: CInt
+	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
+	var n: Int
 
 	fd = open(filePath, O_RDONLY)
 	if fd < 0 { die(s: filePath) }
 	while true {
-		n = read(fd, buf, BUFFER_SIZE)
+		n = read(fd, &buf, Int(BUFSIZ))
 		if n < 0 { die(s: filePath) }
 		if n == 0 { break }
 		if write(STDOUT_FILENO, buf, n) < 0 { die(s: filePath) }
@@ -29,17 +34,19 @@ func do_cat(filePath: CharPointer) {
 }
 
 // main Function
-guard CommandLine.arguments.count < 2 else {
-	var errorNum: [CChar]? = CommandLine.arguments[0].cString(using: String.Encoding.utf8)
-	fprintf(stderr, "%s: file name not given\n", !errorNum )
+guard CommandLine.arguments.count > 1 else {
+	print("\(CommandLine.arguments[0]): file name not given", to:&standardError)
 	exit(1)
 }
-var count: Int = 0
-for args in CommandLine.arguments {
 
-	print("args[\(count)]=\(args)")
-	count = count + 1
+let filelist = CommandLine.arguments[1..<CommandLine.arguments.count]
+
+for file in filelist {
+	do_cat(filePath: file)
 }
+
+exit(0)
+
 
 
 
