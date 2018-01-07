@@ -12,7 +12,6 @@ extension FileHandle : TextOutputStream {
 }
 
 func die (s: String) {
-	print("process downed by \(s)")
 	perror(s)
 	exit(1)
 }
