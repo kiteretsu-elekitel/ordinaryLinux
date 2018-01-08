@@ -16,12 +16,13 @@ func die (s: String) {
 	exit(1)
 }
 
-func do_cat(filePath: String) {
+func do_cat(filePath: String, stdinflg: Bool) {
 	var fd: CInt
 	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
 	var n: Int
 
 	fd = open(filePath, O_RDONLY)
+
 	if fd < 0 { die(s: filePath) }
 	while true {
 		n = read(fd, &buf, Int(BUFSIZ))
@@ -32,16 +33,38 @@ func do_cat(filePath: String) {
 	if close(fd) < 0 { die(s: filePath) }
 }
 
-// main Function
-guard CommandLine.arguments.count > 1 else {
-	print("\(CommandLine.arguments[0]): file name not given", to:&standardError)
-	exit(1)
+func doCatStdin() {
+	//var fd: CInt
+	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
+	var n: Int
+
+	//fd = open(&STDIN_FILENO, O_RDONLY)
+
+	//if fd < 0 { die(s: "STDIN") }
+	while true {
+		n = read(STDIN_FILENO, &buf, Int(BUFSIZ))
+		if n < 0 { die(s: "STDIN") }
+		if n == 0 { break }
+		if write(STDOUT_FILENO, buf, n) < 0 { die(s: "STDIN") }
+	}
+	//if close(fd) < 0 { die(s: "STDIN") }
 }
 
-let filelist = CommandLine.arguments[1..<CommandLine.arguments.count]
+// main Function
+var noArgFlg: Bool
+if CommandLine.arguments.count > 1 {
+	noArgFlg = false
+} else {
+	noArgFlg = true
+}
 
-for file in filelist {
-	do_cat(filePath: file)
+if noArgFlg {
+	doCatStdin()
+} else {
+	let filelist = CommandLine.arguments[1..<CommandLine.arguments.count]
+	for file in filelist {
+		do_cat(filePath: file, stdinflg: noArgFlg)
+	}
 }
 
 exit(0)
