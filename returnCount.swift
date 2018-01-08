@@ -16,10 +16,14 @@ func die (s: String) {
 	exit(1)
 }
 
-func do_cat(filePath: String, stdinflg: Bool) {
+func do_cat(filePath: String) {
 	var fd: CInt
 	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
 	var n: Int
+	var count: UInt8 = 0
+	//"10" is return code by ASCII
+	let target: UInt8 = 10
+
 
 	fd = open(filePath, O_RDONLY)
 
@@ -27,8 +31,14 @@ func do_cat(filePath: String, stdinflg: Bool) {
 	while true {
 		n = read(fd, &buf, Int(BUFSIZ))
 		if n < 0 { die(s: filePath) }
-		if n == 0 { break }
-		if write(STDOUT_FILENO, buf, n) < 0 { die(s: filePath) }
+		for i in buf {
+			if i == target { count = count + 1 }
+		}
+		if n == 0 {
+			//if write(STDOUT_FILENO, &count, n) < 0 { die(s: filePath) }
+			print(count / 2)
+			break
+		}
 	}
 	if close(fd) < 0 { die(s: filePath) }
 }
@@ -37,6 +47,9 @@ func doCatStdin() {
 	//var fd: CInt
 	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
 	var n: Int
+	var count: UInt8 = 0
+	let target: UInt8 = 10
+
 
 	//fd = open(&STDIN_FILENO, O_RDONLY)
 
@@ -44,8 +57,14 @@ func doCatStdin() {
 	while true {
 		n = read(STDIN_FILENO, &buf, Int(BUFSIZ))
 		if n < 0 { die(s: "STDIN") }
-		if n == 0 { break }
-		if write(STDOUT_FILENO, buf, n) < 0 { die(s: "STDIN") }
+		for i in buf {
+			if i == target { count = count + 1 }
+		}
+		if n == 0 {
+			//if write(STDOUT_FILENO, &count, n) < 0 { die(s: "STDIN") }
+			print(count / 2)
+			break
+		}
 	}
 	//if close(fd) < 0 { die(s: "STDIN") }
 }
@@ -63,7 +82,7 @@ if noArgFlg {
 } else {
 	let filelist = CommandLine.arguments[1..<CommandLine.arguments.count]
 	for file in filelist {
-		do_cat(filePath: file, stdinflg: noArgFlg)
+		do_cat(filePath: file)
 	}
 }
 
