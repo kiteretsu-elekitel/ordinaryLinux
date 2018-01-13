@@ -16,21 +16,15 @@ func die (s: String) {
 	exit(1)
 }
 
-func do_cat(filePath: String, stdinflg: Bool) {
-	var fd: CInt
-	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
-	var n: Int
-
-	fd = open(filePath, O_RDONLY)
-
-	if fd < 0 { die(s: filePath) }
-	while true {
-		n = read(fd, &buf, Int(BUFSIZ))
-		if n < 0 { die(s: filePath) }
-		if n == 0 { break }
-		if write(STDOUT_FILENO, buf, n) < 0 { die(s: filePath) }
+func do_cat(filePath: String) {
+	let fileURL: URL = URL(fileURLWithPath: filePath)
+	do {
+		let contents = try String(contentsOf: fileURL, encoding: String.Encoding.utf8)
+		print(contents)
+	} catch {
+		print(error, to: &standardError)
+		exit(1)
 	}
-	if close(fd) < 0 { die(s: filePath) }
 }
 
 func doCatStdin() {
@@ -63,7 +57,7 @@ if noArgFlg {
 } else {
 	let filelist = CommandLine.arguments[1..<CommandLine.arguments.count]
 	for file in filelist {
-		do_cat(filePath: file, stdinflg: noArgFlg)
+		do_cat(filePath: file)
 	}
 }
 
