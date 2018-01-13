@@ -27,23 +27,6 @@ func do_cat(filePath: String) {
 	}
 }
 
-//func do_cat(filePath: String, stdinflg: Bool) {
-//	var fd: CInt
-//	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
-//	var n: Int
-//
-//	fd = open(filePath, O_RDONLY)
-//
-//	if fd < 0 { die(s: filePath) }
-//	while true {
-//		n = read(fd, &buf, Int(BUFSIZ))
-//		if n < 0 { die(s: filePath) }
-//		if n == 0 { break }
-//		if write(STDOUT_FILENO, buf, n) < 0 { die(s: filePath) }
-//	}
-//	if close(fd) < 0 { die(s: filePath) }
-//}
-
 func doCatStdin() {
 	//var fd: CInt
 	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
