@@ -31,13 +31,14 @@ func do_cat(filePath: String) {
 	while true {
 		n = read(fd, &buf, Int(BUFSIZ))
 		if n < 0 { die(s: filePath) }
-		for i in buf {
-			if i == target { count = count + 1 }
-		}
+		print(buf)
 		if n == 0 {
 			//if write(STDOUT_FILENO, &count, n) < 0 { die(s: filePath) }
-			print(count / 2)
+			print(count)
 			break
+		}
+		for i in buf {
+			if i == NSCharacterSet.newlines.3 { count = count + 1 }
 		}
 	}
 	if close(fd) < 0 { die(s: filePath) }
@@ -57,13 +58,13 @@ func doCatStdin() {
 	while true {
 		n = read(STDIN_FILENO, &buf, Int(BUFSIZ))
 		if n < 0 { die(s: "STDIN") }
-		for i in buf {
-			if i == target { count = count + 1 }
-		}
 		if n == 0 {
 			//if write(STDOUT_FILENO, &count, n) < 0 { die(s: "STDIN") }
-			print(count / 2)
+			print(count)
 			break
+		}
+		for i in buf {
+			if i == target { count = count + 1 }
 		}
 	}
 	//if close(fd) < 0 { die(s: "STDIN") }
