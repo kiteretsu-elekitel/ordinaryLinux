@@ -41,6 +41,10 @@ func doCatStdin() {
 	//var fd: CInt
 	var buf = Array<UInt8>(repeating: 0, count: Int(BUFSIZ))
 	var n: Int
+	var count: UInt8 = 0
+	//10 is return code by ASCII
+	let target: UInt8 = 10
+
 
 	//fd = open(&STDIN_FILENO, O_RDONLY)
 
@@ -49,7 +53,9 @@ func doCatStdin() {
 		n = read(STDIN_FILENO, &buf, Int(BUFSIZ))
 		if n < 0 { die(s: "STDIN") }
 		if n == 0 { break }
-		if write(STDOUT_FILENO, buf, n) < 0 { die(s: "STDIN") }
+		for i in buf {
+			if i == target { count = count + 1 }
+		}
 	}
 	//if close(fd) < 0 { die(s: "STDIN") }
 }
