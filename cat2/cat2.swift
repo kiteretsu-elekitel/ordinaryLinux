@@ -1,10 +1,9 @@
 import Foundation
-import Glibc
 
 let argList = CommandLine.arguments[1..<CommandLine.arguments.count]
 for file in argList {
 	var c: Int32
-	var f: UnsafeMutablePointer<FILE>! = fopen(file, "r")
+	let f: UnsafeMutablePointer<FILE>! = fopen(file, "r")
 
 	if f == nil {
 		perror(file)
