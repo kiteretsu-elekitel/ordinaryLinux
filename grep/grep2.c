@@ -3,10 +3,31 @@
 #include <string.h>
 #include <sys/types.h>
 #include <regex.h>
+#include <unistd.h>
+#include <stdbool.h>
+
+#define BUFSIZE 1024;
 
 static void do_grep(regex_t *pat, FILE *f);
 
 int main(int argc, char *argv[]) {
+
+	int opt;
+	bool ignoreCase = false;
+
+	while ((opt = getopt(argc, argv, "iv")) != -1 ) {
+		switch(opt) {
+			case 'i':
+				ignoreCase = true;
+				break;
+			case 'v':
+				break;
+			case '?':
+				fputs("invalid argument given", stderr);
+				exit(1);
+		}
+	}
+
 	regex_t pat;
 	int err;
 	int i;
@@ -18,7 +39,7 @@ int main(int argc, char *argv[]) {
 
 	err = regcomp(&pat, argv[1], REG_EXTENDED | REG_NOSUB | REG_NEWLINE);
 	if (err != 0) {
-		char buf[1024];
+		char buf[BUFSIZ];
 
 		regerror(err, &pat, buf, sizeof buf);
 		puts(buf);
@@ -52,4 +73,13 @@ static void do_grep(regex_t *pat, FILE *src) {
 			fputs(buf, stdout);
 		}
 	}
+}
+
+static char *toLowerCase(char *targetBuf) {
+	for(int i; i <= strlen(targetBuf); i++) {
+		if(targetBuf[i] >= 65 && targetBuf[i] <= 90)
+      		targetBuf[i] = targetBuf[i] + 32;
+	}
+
+	return targetBuf;
 }
