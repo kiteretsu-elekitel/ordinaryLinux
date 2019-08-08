@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	for (int i = 1; i < argc; i++) {
+		//ディレクトリを抽出
 		pickupDir(argv[i]);
 	}
 	exit(0);
@@ -34,9 +35,22 @@ static void pickupDir(char *path) {
 
 	while (ent = readdir(d)) {
 		char* filepath[4096];
+		if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+			continue;
+		}
+
 		printf("%s\n", ent->d_name);
 		snprintf(filepath, 4096, "%s%s%s", path, "/", ent->d_name);
-		printf("%s", filepath);
+		printf("%s\n", filepath);
+		//judge directory
+		if (lstat(filepath, &st) < 0) {
+			perror(filepath);
+			exit(1);
+		}
+
+		if (S_ISDIR(st.st_mode)) {
+			printf("this is directory\n");
+		}
 
 	}
 
